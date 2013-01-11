@@ -55,14 +55,11 @@ class CloudStorageURLSigner(object):
     self.client_id_email = client_id_email
     self.gcs_api_endpoint = gcs_api_endpoint
 
-    self.expiration = expiration
-    if self.expiration is None:
-      self.expiration = datetime.datetime.now() + datetime.timedelta(days=1)
+    self.expiration = expiration or (datetime.datetime.now() +
+                                     datetime.timedelta(days=1))
     self.expiration = int(time.mktime(self.expiration.timetuple()))
 
-    self.session = session
-    if self.session is None:
-      self.session = requests.Session()
+    self.session = session or requests.Session()
 
   def _Base64Sign(self, plaintext):
     """Signs and returns a base64-encoded SHA256 digest."""
@@ -73,16 +70,16 @@ class CloudStorageURLSigner(object):
 
   def _MakeSignatureString(self, verb, path, content_md5, content_type):
     """Creates the signature string for signing according to GCS docs."""
-    signature_string = ('%(verb)s\n'
-                        '%(content_md5)s\n'
-                        '%(content_type)s\n'
-                        '%(expiration)s\n'
-                        '%(resource)s')
-    return signature_string % {'verb': verb,
-                               'content_md5': content_md5,
-                               'content_type': content_type,
-                               'expiration': self.expiration,
-                               'resource': path}
+    signature_string = ('{verb}\n'
+                        '{content_md5}\n'
+                        '{content_type}\n'
+                        '{expiration}\n'
+                        '{resource}')
+    return signature_string.format(verb=verb,
+                                   content_md5=content_md5,
+                                   content_type=content_type,
+                                   expiration=self.expiration,
+                                   resource=path)
 
   def _MakeUrl(self, verb, path, content_type='', content_md5=''):
     """Forms and returns the full signed URL to access GCS."""
@@ -166,7 +163,12 @@ def ProcessResponse(r, expected_status=200):
 
 
 def main():
-  private_key = RSA.importKey(open(conf.PRIVATE_KEY_PATH, 'rb').read())
+  try:
+    keytext = open(conf.PRIVATE_KEY_PATH, 'rb').read()
+  except IOError as e:
+    sys.exit('Error while reading private key: %s' % e)
+
+  private_key = RSA.importKey(keytext)
   signer = CloudStorageURLSigner(private_key, conf.SERVICE_ACCOUNT_EMAIL,
                                  GCS_API_ENDPOINT)
 
