@@ -10,6 +10,10 @@ OBJECT_NAME = 'object.txt'
 
 # Set this to the path of your service account private key file, in DER format.
 #
+# PyCrypto requires using the DER key format, but GCS provides key files in
+# pkcs12 format. To convert between formats, you can use the provided commands
+# below.
+#
 # Given a GCS key in pkcs12 format, convert it to PEM using this command:
 #   openssl pkcs12 -in path/to/key.p12 -nodes -nocerts > path/to/key.pem
 # Given a GCS key in PEM format, convert it to DER format using this command:
