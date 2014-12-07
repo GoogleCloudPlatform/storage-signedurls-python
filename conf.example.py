@@ -14,6 +14,8 @@ OBJECT_NAME = 'object.txt'
 # pkcs12 format. To convert between formats, you can use the provided commands
 # below.
 #
+# The default password for p12 file is `notasecret`
+# 
 # Given a GCS key in pkcs12 format, convert it to PEM using this command:
 #   openssl pkcs12 -in path/to/key.p12 -nodes -nocerts > path/to/key.pem
 # Given a GCS key in PEM format, convert it to DER format using this command:
