@@ -149,7 +149,7 @@ def ProcessResponse(r, expected_status=200):
     SystemExit if the response code doesn't match expected_status.
   """
   print '--- Request ---'
-  print r.request.full_url
+  print r.request.url
   for header, value in r.request.headers.iteritems():
     print '%s: %s' % (header, value)
   print '---------------'
